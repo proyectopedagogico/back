@@ -6,6 +6,32 @@ const loginForm = document.getElementById('login-form');
 const loginErrorElement = document.getElementById('login-error');
 const overlayForAuth = document.getElementById('overlay'); // Usamos el mismo overlay
 
+const passwordInput = document.getElementById('password');
+const togglePasswordButton = document.getElementById('togglePassword');
+
+if (togglePasswordButton && passwordInput) {
+    togglePasswordButton.addEventListener('click', function() {
+        // Alternar el tipo de atributo del input de contraseña
+        const currentType = passwordInput.getAttribute('type');
+        const newType = currentType === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', newType);
+
+        // Opcional: Cambiar el icono/texto del botón
+        // (Si usas emojis como en el ejemplo HTML)
+        this.textContent = newType === 'password' ? '👁️' : '🙈';
+        // (Si usaras clases para iconos diferentes, ej. FontAwesome 'fa-eye' / 'fa-eye-slash')
+        // this.querySelector('i').classList.toggle('fa-eye');
+        // this.querySelector('i').classList.toggle('fa-eye-slash');
+    });
+} else {
+     // Solo mostrar este error si estamos en una página donde el login modal DEBERÍA estar presente
+     // Podríamos comprobar si 'login-modal' existe antes de mostrar el error.
+     if(document.getElementById('login-modal')) {
+        console.warn("No se encontró el input de contraseña o el botón para mostrar/ocultar.");
+     }
+}
+
+
 // Comprueba si el usuario está logueado (usando sessionStorage)
 function isLoggedIn() {
     return sessionStorage.getItem('userLoggedIn') === 'true';

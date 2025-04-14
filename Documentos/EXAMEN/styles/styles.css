@@ -567,6 +567,34 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
     }
 }
 
+.password-group {
+    position: relative; /* Contenedor necesita posición relativa */
+}
+
+.toggle-password-btn {
+    position: absolute;
+    top: 70%; /* Ajustar para alinear verticalmente con el input */
+    right: 10px; /* Espacio desde el borde derecho del input */
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px; /* Área de clic un poco más grande */
+    font-size: 1.2rem; /* Tamaño del icono/emoji */
+    color: var(--secondary-color); /* Color discreto */
+    line-height: 1; /* Evitar espacio extra */
+}
+
+.toggle-password-btn:hover {
+    color: var(--primary-color); /* Resaltar al pasar el ratón */
+}
+
+/* Ajuste para que el botón no solape el texto si el input es muy pequeño */
+/* Podrías necesitar ajustar el padding-right del input si el botón se solapa */
+#password {
+     padding-right: 40px; /* Añade espacio a la derecha para el botón */
+}
+
 
 
 @media (max-width: 480px) {
