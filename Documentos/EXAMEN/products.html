@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - Tienda Moderna</title>
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-content">
+            <a href="index.html" class="logo">TiendaModerna</a>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="products.html">Productos</a></li>
+                    <li><a href="#" id="cart-button">
+                        <span class="cart-icon">🛒</span> Carrito (<span id="cart-count">0</span>)
+                    </a></li>
+                    <li><a href="#" id="auth-button" class="btn btn-secondary">Login</a></li>
+                </ul>
+            </nav>
+            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Cambiar tema">
+                <span class="icon-sun">☀️</span>
+                <span class="icon-moon">🌙</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        <h2>Todos Nuestros Productos</h2>
+        <section id="product-list" class="product-grid">
+            <article class="product-card" data-product-id="p1">
+                <img src="https://via.placeholder.com/300x200/CCCCCC/888888?text=Producto+1" alt="Producto 1" class="product-image">
+                <h3 class="product-title">Producto Elegante 1</h3>
+                <p class="product-description">Una breve descripción de este maravilloso producto.</p>
+                <p class="product-price">€<span class="price-value">19.99</span></p>
+                <button class="btn btn-primary add-to-cart-btn">Añadir al Carrito</button>
+            </article>
+
+            <article class="product-card" data-product-id="p2">
+                <img src="https://via.placeholder.com/300x200/DDDDDD/777777?text=Producto+2" alt="Producto 2" class="product-image">
+                <h3 class="product-title">Artículo Moderno 2</h3>
+                <p class="product-description">Otro producto fantástico que seguro te encantará.</p>
+                <p class="product-price">€<span class="price-value">24.50</span></p>
+                <button class="btn btn-primary add-to-cart-btn">Añadir al Carrito</button>
+            </article>
+
+            <article class="product-card" data-product-id="p3">
+                <img src="https://via.placeholder.com/300x200/EEEEEE/666666?text=Producto+3" alt="Producto 3" class="product-image">
+                <h3 class="product-title">Gadget Útil 3</h3>
+                <p class="product-description">La solución perfecta para tus necesidades diarias.</p>
+                <p class="product-price">€<span class="price-value">9.75</span></p>
+                <button class="btn btn-primary add-to-cart-btn">Añadir al Carrito</button>
+            </article>
+
+             <article class="product-card" data-product-id="p4">
+                <img src="https://via.placeholder.com/300x200/AAAAAA/555555?text=Producto+4" alt="Producto 4" class="product-image">
+                <h3 class="product-title">Accesorio Premium 4</h3>
+                <p class="product-description">Calidad superior y diseño exclusivo para ti.</p>
+                <p class="product-price">€<span class="price-value">49.90</span></p>
+                <button class="btn btn-primary add-to-cart-btn">Añadir al Carrito</button>
+            </article>
+
+             <article class="product-card" data-product-id="p5">
+                <img src="https://via.placeholder.com/300x200/BBBBBB/444444?text=Producto+5" alt="Producto 5" class="product-image">
+                <h3 class="product-title">Set Completo 5</h3>
+                <p class="product-description">Todo lo que necesitas en un solo paquete.</p>
+                <p class="product-price">€<span class="price-value">75.00</span></p>
+                <button class="btn btn-primary add-to-cart-btn">Añadir al Carrito</button>
+            </article>
+
+            </section>
+
+        <aside id="cart-sidebar" class="cart-sidebar"> <button class="close-btn" id="close-cart-btn" aria-label="Cerrar carrito">&times;</button>
+            <h2>Tu Carrito</h2>
+            <div id="cart-items-container">
+                <p>Tu carrito está vacío.</p>
+            </div>
+            <div class="cart-summary">
+                <strong>Total: €<span id="cart-total">0.00</span></strong>
+            </div>
+            <button class="btn btn-primary btn-block" id="checkout-btn">Proceder al Pago</button>
+        </aside>
+
+        <div id="login-modal" class="modal hidden">
+             <div class="modal-content">
+                <button class="close-btn" id="close-login-btn" aria-label="Cerrar login">&times;</button>
+                <h2>Iniciar Sesión</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+                    <p id="login-error" class="error-message hidden">Email o contraseña incorrectos (simulación).</p>
+                </form>
+            </div>
+        </div>
+
+        <div id="overlay" class="overlay hidden"></div>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; <span id="current-year"></span> TiendaModerna. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="js/theme.js"></script>
+    <script src="js/cart.js"></script>  <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

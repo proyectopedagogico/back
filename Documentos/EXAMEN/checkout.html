@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumen del Pedido - Tienda Moderna</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <style>
+        .checkout-summary dt {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        .checkout-summary dd {
+            margin-left: 0; /* Reset margin */
+            text-align: right;
+            font-size: 1.1em;
+        }
+        .checkout-summary .total-line dt,
+        .checkout-summary .total-line dd {
+            font-weight: bold;
+            font-size: 1.3em;
+            color: var(--primary-color);
+            border-top: 2px solid var(--primary-color);
+            padding-top: 0.5em;
+            margin-top: 0.5em;
+        }
+        .checkout-cart-item {
+            display: flex;
+            gap: 1em;
+            padding: 0.8em 0;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+        .checkout-cart-item img {
+            width: 50px; height: 50px; object-fit: cover; border-radius: var(--border-radius);
+        }
+        .checkout-cart-item-details { flex-grow: 1; }
+        .checkout-cart-item-details p { margin: 0.2em 0; font-size: 0.9em;}
+        .checkout-cart-item-price { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-content">
+             <a href="index.html" class="logo">TiendaModerna</a>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="products.html">Productos</a></li>
+                    <li><a href="#" id="cart-button"> <span class="cart-icon">🛒</span> Carrito (<span id="cart-count">0</span>)
+                    </a></li>
+                    <li><a href="#" id="auth-button" class="btn btn-secondary">Login</a></li>
+                </ul>
+            </nav>
+            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Cambiar tema">
+                <span class="icon-sun">☀️</span>
+                <span class="icon-moon">🌙</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        <h2>Resumen de tu Pedido</h2>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 2em;">
+
+            <section style="flex: 2; min-width: 300px;">
+                <h3>Artículos en tu carrito</h3>
+                <div id="checkout-cart-items">
+                    <p>Cargando artículos...</p>
+                </div>
+            </section>
+
+            <aside style="flex: 1; min-width: 250px; background-color: var(--card-bg-color); padding: 1.5em; border-radius: var(--border-radius); border: 1px solid var(--border-color); height: fit-content;">
+                <h3>Resumen</h3>
+                <dl class="checkout-summary">
+                    <div style="display: flex; justify-content: space-between;">
+                      <dt>Subtotal:</dt>
+                      <dd>€<span id="checkout-subtotal">0.00</span></dd>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5em;">
+                      <dt>IVA (21%):</dt> <dd>€<span id="checkout-iva">0.00</span></dd>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;" class="total-line">
+                      <dt>Total:</dt>
+                      <dd>€<span id="checkout-total">0.00</span></dd>
+                    </div>
+                </dl>
+                <button class="btn btn-primary btn-block" style="margin-top: 1.5em;">Confirmar Pedido (Simulación)</button>
+            </aside>
+
+        </div>
+
+    </main>
+
+    <div id="overlay" class="overlay hidden"></div>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; <span id="current-year"></span> TiendaModerna. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="js/theme.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/checkout.js"></script> <script src="js/main.js"></script>
+</body>
+</html>
