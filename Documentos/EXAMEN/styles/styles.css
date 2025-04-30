@@ -1,4 +1,3 @@
-/* --- Reset Básico y Variables --- */
 *,
 *::before,
 *::after {
@@ -24,6 +23,9 @@
     --border-radius: 0.25rem;
     --shadow: 0 1px 3px rgba(0,0,0,0.1);
     --transition-speed: 0.2s;
+
+    /* OPTIMIZACIÓN: Definir variable RGB para el color primario */
+    --primary-color-rgb: 0, 123, 255;
 }
 
 body.dark-mode {
@@ -35,6 +37,9 @@ body.dark-mode {
     --border-color: #30363d;
     --link-color: var(--primary-color);
     --link-hover-color: #80baff;
+
+    /* OPTIMIZACIÓN: Definir variable RGB para el color primario oscuro */
+    --primary-color-rgb: 88, 166, 255;
 }
 
 /* --- Estilos Base --- */
@@ -71,7 +76,7 @@ img {
 
 h1, h2, h3 {
     margin-bottom: 0.75em;
-    color: var(--primary-color); /* Titulos con color primario */
+    color: var(--primary-color);
 }
 
 /* --- Header --- */
@@ -100,9 +105,8 @@ h1, h2, h3 {
     color: var(--primary-color);
     text-decoration: none;
 }
-.logo:hover {
-    text-decoration: none;
-}
+/* No es necesario :hover si no cambia nada respecto a 'a:hover' */
+/* .logo:hover { text-decoration: none; } */
 
 .main-nav ul {
     list-style: none;
@@ -111,40 +115,58 @@ h1, h2, h3 {
     gap: 1rem;
 }
 
-.main-nav a, #cart-button {
+/* OPTIMIZACIÓN: Combinar estilos comunes para enlaces de nav y botón de carrito */
+.main-nav a,
+#cart-button {
     padding: 0.5rem;
-    display: block;
     color: var(--text-color);
     text-decoration: none;
     transition: color var(--transition-speed) ease;
-}
-.main-nav a:hover, #cart-button:hover {
-    color: var(--primary-color);
-    text-decoration: none;
+    cursor: pointer;
+    font-family: inherit;
 }
 
+/* OPTIMIZACIÓN: Combinar estilos hover */
+.main-nav a:hover,
+#cart-button:hover {
+    color: var(--primary-color);
+    text-decoration: none; /* Asegurar que no haya subrayado en hover */
+}
+
+/* Estilos específicos para enlaces de navegación */
+.main-nav a {
+    display: block; /* Solo los links de nav son block */
+}
+
+/* Estilos específicos para el botón del carrito */
 #cart-button {
     background: none;
     border: none;
-    cursor: pointer;
     font-size: inherit;
-    font-family: inherit;
+    display: inline-flex; /* Para alinear icono y texto */
+    align-items: center;
 }
-.cart-icon { margin-right: 0.3rem; }
 
+/* Contenedor para acciones a la derecha */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.cart-icon {
+    margin-right: 0.3rem;
+}
+
+/* --- Hero Section --- */
 .hero-section {
-    background-color: var(--secondary-color); /* Color de fondo o imagen */
-    /* Para imagen de fondo:
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('path/to/your/hero-image.jpg');
-    background-size: cover;
-    background-position: center;
-    */
-    color: white; /* Texto claro sobre fondo oscuro */
-    padding: 4rem 1rem; /* Espaciado generoso */
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 4rem 1rem;
     text-align: center;
-    margin-bottom: 2rem; /* Espacio antes de los productos */
+    margin-bottom: 2rem;
     border-radius: var(--border-radius);
-    overflow: hidden; /* Por si usas efectos */
+    overflow: hidden;
 }
 
 .hero-content {
@@ -153,9 +175,9 @@ h1, h2, h3 {
 }
 
 .hero-title {
-    font-size: 2.5rem; /* Título grande */
+    font-size: 2.5rem;
     font-weight: bold;
-    color: white; /* Asegurar color blanco */
+    color: white; /* Forzar blanco sobre hero */
     margin-bottom: 0.5em;
     line-height: 1.2;
 }
@@ -166,7 +188,7 @@ h1, h2, h3 {
     opacity: 0.9;
 }
 
-.btn-lg { /* Clase opcional para botones más grandes */
+.btn-lg {
     padding: 0.8rem 1.8rem;
     font-size: 1.1rem;
 }
@@ -176,15 +198,27 @@ h1, h2, h3 {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1.5rem; /* Tamaño de los emojis */
+    font-size: 1.5rem;
     padding: 0.25rem;
-    line-height: 1; /* Para alinear mejor los emojis */
-    position: relative;
-    width: 40px; /* Ancho fijo para contener un emoji */
-    height: 30px; /* Alto fijo */
-    overflow: hidden; /* Ocultar el emoji que no se muestra */
+    line-height: 1;
+    position: relative; /* Necesario para posicionar iconos internos */
+    width: 40px;
+    height: 30px;
+    overflow: hidden;
+    /* OPTIMIZACIÓN: Combinar selectores para iconos */
+    & .icon-sun,
+    & .icon-moon { /* Usando anidamiento CSS (si es soportado) o escribir selectores largos */
+      /* Alternativa sin anidamiento:
+      .theme-toggle-btn .icon-sun,
+      .theme-toggle-btn .icon-moon { ... } */
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        transition: opacity var(--transition-speed) ease;
+    }
 }
-
+/* Si no se usa anidamiento CSS (más compatible):
 .theme-toggle-btn .icon-sun,
 .theme-toggle-btn .icon-moon {
     position: absolute;
@@ -193,6 +227,7 @@ h1, h2, h3 {
     transform: translate(-50%, -50%);
     transition: opacity var(--transition-speed) ease;
 }
+*/
 
 body:not(.dark-mode) .theme-toggle-btn .icon-moon { opacity: 0; }
 body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
@@ -208,55 +243,55 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease, color var(--transition-speed) ease;
-    text-decoration: none;
+    text-decoration: none; /* Base para botones */
 }
 .btn:hover {
-    text-decoration: none;
+    text-decoration: none; /* Asegurar no subyarado en hover */
 }
+/* Clases modificadoras para botones */
 .btn-primary {
     background-color: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
-}
-.btn-primary:hover {
-    background-color: var(--link-hover-color);
-    border-color: var(--link-hover-color);
+    &:hover { /* Anidamiento o selector largo: .btn-primary:hover */
+        background-color: var(--link-hover-color);
+        border-color: var(--link-hover-color);
+    }
 }
 .btn-secondary {
     background-color: var(--secondary-color);
     color: white;
     border-color: var(--secondary-color);
-}
-.btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
+    &:hover { /* Anidamiento o selector largo: .btn-secondary:hover */
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
 }
 .btn-danger {
     background-color: var(--error-color);
     color: white;
     border-color: var(--error-color);
+    &:hover { /* Anidamiento o selector largo: .btn-danger:hover */
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
 }
-.btn-danger:hover {
-    background-color: #c82333;
-    border-color: #bd2130;
-}
-
 .btn-block {
     display: block;
     width: 100%;
 }
 
+
 /* --- Main Content & Productos --- */
 .main-content {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+    padding: 2rem 0; /* Simplificado padding */
 }
 
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
-    margin-top: 1.5rem;
+    margin-top: 1.5rem; /* Mantener espacio superior */
 }
 
 .product-card {
@@ -267,37 +302,37 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
-    transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease, transform 0.1s ease-in-out;
-}
-.product-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease, transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out; /* Añadir box-shadow a transición */
+    &:hover { /* Anidamiento o .product-card:hover */
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
 }
 
 .product-image {
     width: 100%;
-    height: 180px;
+    aspect-ratio: 3 / 2; /* Mejor que height fijo para responsividad */
     object-fit: cover;
     margin-bottom: 1rem;
-    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    /* border-radius quitado si se aplica a la tarjeta */
 }
 
 .product-title {
     font-size: 1.1rem;
     margin-bottom: 0.5rem;
-    color: var(--text-color); /* Título de producto con color de texto normal */
+    color: var(--text-color);
 }
 
 .product-description {
     font-size: 0.9rem;
-    flex-grow: 1; /* Hace que la descripción ocupe espacio */
+    flex-grow: 1;
     margin-bottom: 1rem;
 }
 
 .product-price {
     font-size: 1.1rem;
     font-weight: bold;
-    color: var(--success-color); /* Precio en verde */
+    color: var(--success-color);
     margin-bottom: 1rem;
 }
 
@@ -305,10 +340,9 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
 .cart-sidebar {
     position: fixed;
     top: 0;
-    right: -400px; /* Empieza fuera de la pantalla */
-    width: 350px;
-    max-width: 90%;
-    height: 100vh;
+    right: -400px;
+    width: min(350px, 90%); /* Usa min() para ancho máximo */
+    height: 100vh; /* O 100dvh para viewport dinámico */
     background-color: var(--card-bg-color);
     border-left: 1px solid var(--border-color);
     box-shadow: -2px 0 5px rgba(0,0,0,0.1);
@@ -317,17 +351,26 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    transition: right var(--transition-speed) ease-in-out, background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+    /* Simplificar transición */
+    transition: right var(--transition-speed) ease-in-out, background-color var(--transition-speed) ease, border-color var(--transition-speed) ease; /* Mantener transiciones explícitas */
+    visibility: hidden; /* Añadir para mejor transición con right */
+
+    &.visible {
+        right: 0;
+        visibility: visible;
+    }
+
+    & h2 { /* Anidamiento o .cart-sidebar h2 */
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
 }
-.cart-sidebar.visible {
-    right: 0;
-}
-.cart-sidebar h2 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border-color);
-}
+/* Si no se usa anidamiento:
+.cart-sidebar.visible { right: 0; visibility: visible; }
+.cart-sidebar h2 { ... }
+*/
 
 #cart-items-container {
     flex-grow: 1;
@@ -338,28 +381,32 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
+    padding: 1rem 0; /* Padding vertical */
     border-bottom: 1px dashed var(--border-color);
+    &:last-child { /* Anidamiento o .cart-item:last-child */
+        border-bottom: none;
+        /* margin y padding ya son 0 por defecto al no tener borde */
+    }
 }
-.cart-item:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
+
 .cart-item-image {
     width: 60px;
-    height: 60px;
+    height: 60px; /* O aspect-ratio: 1 / 1; */
     object-fit: cover;
     border-radius: var(--border-radius);
+    flex-shrink: 0; /* Evitar que se encoja */
 }
 .cart-item-details {
     flex-grow: 1;
+    min-width: 0; /* Para permitir que el texto se ajuste */
 }
 .cart-item-title {
     font-weight: bold;
     font-size: 0.95rem;
     margin-bottom: 0.2rem;
+    white-space: nowrap; /* Evitar salto línea si es corto */
+    overflow: hidden; /* Ocultar exceso */
+    text-overflow: ellipsis; /* Añadir puntos suspensivos */
 }
 .cart-item-price {
     font-size: 0.9rem;
@@ -371,20 +418,21 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
     align-items: center;
     gap: 0.5rem;
     font-size: 0.9rem;
-}
-.cart-item-quantity button {
-    background: var(--background-color);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    & button { /* Anidamiento o .cart-item-quantity button */
+        background: var(--background-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        font-size: 1rem;
+        line-height: 1; /* Asegurar alineación vertical */
+        display: inline-flex; /* Mejor para centrar contenido */
+        align-items: center;
+        justify-content: center;
+        padding: 0; /* Reset padding */
+    }
 }
 .cart-item-remove-btn {
     background: none;
@@ -393,27 +441,25 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
     cursor: pointer;
     font-size: 1.2rem;
     padding: 0.2rem;
+    margin-left: auto; /* Empujar a la derecha si hay espacio */
 }
 
 .cart-summary {
-    margin-top: auto; /* Empuja al final */
+    margin-top: auto;
     padding-top: 1rem;
     border-top: 1px solid var(--border-color);
     text-align: right;
     font-size: 1.1rem;
-}
-.cart-summary strong {
-    color: var(--primary-color);
+    & strong { /* Anidamiento o .cart-summary strong */
+        color: var(--primary-color);
+    }
 }
 
 /* --- Modal --- */
 .modal {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Fondo semi-transparente */
+    inset: 0; /* Más corto que top/left/width/height */
+    background-color: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -421,10 +467,13 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
     opacity: 0;
     visibility: hidden;
     transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
-}
-.modal:not(.hidden) {
-    opacity: 1;
-    visibility: visible;
+    &:not(.hidden) { /* Anidamiento o .modal:not(.hidden) */
+        opacity: 1;
+        visibility: visible;
+        & .modal-content { /* Anidamiento o .modal:not(.hidden) .modal-content */
+          transform: scale(1);
+        }
+    }
 }
 
 .modal-content {
@@ -432,17 +481,13 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
     padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    width: 90%;
-    max-width: 450px;
+    width: min(450px, 90%); /* Usa min() para ancho máximo */
     position: relative;
     transform: scale(0.95);
     transition: transform var(--transition-speed) ease, background-color var(--transition-speed) ease;
 }
-.modal:not(.hidden) .modal-content {
-    transform: scale(1);
-}
 
-/* Botón de cerrar genérico para modal/sidebar */
+/* Botón de cerrar genérico */
 .close-btn {
     position: absolute;
     top: 0.75rem;
@@ -453,37 +498,40 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
     color: var(--secondary-color);
     cursor: pointer;
     line-height: 1;
-}
-.close-btn:hover {
-    color: var(--text-color);
+    padding: 0; /* Reset padding */
+    &:hover { /* Anidamiento o .close-btn:hover */
+        color: var(--text-color);
+    }
 }
 
 /* --- Formularios --- */
 .form-group {
     margin-bottom: 1rem;
-}
-.form-group label {
-    display: block;
-    margin-bottom: 0.3rem;
-    font-weight: 500;
-    font-size: 0.9rem;
-}
-.form-group input[type="email"],
-.form-group input[type="password"],
-.form-group input[type="text"] {
-    width: 100%;
-    padding: 0.7rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: var(--background-color);
-    color: var(--text-color);
-    font-size: 1rem;
-    transition: border-color var(--transition-speed) ease, background-color var(--transition-speed) ease;
-}
-.form-group input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb, 0, 123, 255), 0.25); /* Necesitas definir --primary-color-rgb si quieres este efecto */
+    & label { /* Anidamiento o .form-group label */
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    /* Seleccionar inputs por tipo o añadir una clase común .form-control */
+    & input[type="email"],
+    & input[type="password"],
+    & input[type="text"] { /* Anidamiento o .form-group input[...] */
+        width: 100%;
+        padding: 0.7rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        background-color: var(--background-color);
+        color: var(--text-color);
+        font-size: 1rem;
+        transition: border-color var(--transition-speed) ease, background-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease; /* Añadir box-shadow */
+        &:focus { /* Anidamiento o .form-group input[...]:focus */
+            outline: none;
+            border-color: var(--primary-color);
+            /* Usar variable RGB definida antes */
+            box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.25);
+        }
+    }
 }
 
 .error-message {
@@ -495,32 +543,29 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
 /* --- Overlay --- */
 .overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0; /* Más corto que top/left/width/height */
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000; /* Detrás de modales/sidebars */
+    z-index: 1000;
     opacity: 0;
     visibility: hidden;
     transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
+    &:not(.hidden) { /* Anidamiento o .overlay:not(.hidden) */
+        opacity: 1;
+        visibility: visible;
+    }
 }
-.overlay:not(.hidden) {
-    opacity: 1;
-    visibility: visible;
-}
-
 
 /* --- Utilidades --- */
+/* Mantener !important es a veces necesario pero usar con cuidado */
 .hidden {
-    display: none !important; /* !important para sobreescribir otros display */
+    display: none !important;
 }
 
 /* --- Footer --- */
 .site-footer {
     background-color: var(--card-bg-color);
     border-top: 1px solid var(--border-color);
-    padding: 1.5rem 0;
+    padding: 1.5rem 1rem; /* Añadir padding horizontal */
     margin-top: 2rem;
     text-align: center;
     font-size: 0.9rem;
@@ -528,29 +573,73 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
     transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }
 
+/* --- Contraseña Toggle --- */
+.password-group {
+    position: relative;
+    & input[type="password"], /* Para especificidad si es necesario */
+    & input[type="text"] { /* Cuando se muestra */
+        /* Asegurar padding derecho si no está en .form-group input */
+        padding-right: 40px;
+    }
+}
+
+.toggle-password-btn {
+    position: absolute;
+    /* Calcular top basado en padding + line-height del input es complejo,
+       usar transform es más robusto */
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%); /* Centrar verticalmente */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 1.2rem;
+    color: var(--secondary-color);
+    line-height: 1;
+    &:hover { /* Anidamiento o .toggle-password-btn:hover */
+        color: var(--primary-color);
+    }
+}
+
 /* --- Media Queries (Responsividad) --- */
+/* Es buena práctica ponerlos al final */
+
 @media (max-width: 768px) {
     .header-content {
         flex-wrap: wrap;
-        padding: 0.5rem 0; /* Ajuste para posible wrap */
-    }
-    .main-nav ul {
-        gap: 0.5rem; /* Menos espacio en móvil */
-        flex-wrap: wrap; /* Permite que los items bajen */
+        /* Quitar padding aquí si .container ya lo tiene */
+        /* padding: 0.5rem 0; */
+         /* Centrar elementos si se envuelven */
         justify-content: center;
-        margin-top: 0.5rem;
-        width: 100%; /* Ocupa todo el ancho cuando baja */
+        position: relative; /* Para posicionar botón tema */
+        min-height: var(--header-height); /* Asegurar altura mínima */
     }
-     .main-nav li {
-        margin: 0.2rem 0;
+    .main-nav {
+        order: 3; /* Poner nav debajo de logo y acciones en wrap */
+        width: 100%;
+        margin-top: 0.5rem; /* Espacio si se envuelve */
+        & ul { /* Anidamiento o .main-nav ul */
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            /* width: 100%; No necesario si .main-nav tiene width 100% */
+        }
+        & li { /* Anidamiento o .main-nav li */
+            margin: 0.2rem 0; /* Espacio vertical */
+        }
     }
 
-    .theme-toggle-btn {
-        position: absolute; /* Para sacarlo del flujo */
-        top: calc(var(--header-height) / 2);
-        right: 1rem;
-        transform: translateY(-50%);
+    .header-actions {
+       order: 2; /* Poner acciones después del logo */
     }
+
+    .logo { order: 1; }
+
+    /* Botón tema absoluto ya no es ideal con flex-wrap,
+       dejarlo dentro de .header-actions funciona mejor */
+    /* .theme-toggle-btn { ... } */
+
 
     .hero-section {
         padding: 3rem 1rem;
@@ -567,56 +656,30 @@ body.dark-mode .theme-toggle-btn .icon-sun { opacity: 0; }
     }
 }
 
-.password-group {
-    position: relative; /* Contenedor necesita posición relativa */
-}
-
-.toggle-password-btn {
-    position: absolute;
-    top: 70%; /* Ajustar para alinear verticalmente con el input */
-    right: 10px; /* Espacio desde el borde derecho del input */
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 5px; /* Área de clic un poco más grande */
-    font-size: 1.2rem; /* Tamaño del icono/emoji */
-    color: var(--secondary-color); /* Color discreto */
-    line-height: 1; /* Evitar espacio extra */
-}
-
-.toggle-password-btn:hover {
-    color: var(--primary-color); /* Resaltar al pasar el ratón */
-}
-
-/* Ajuste para que el botón no solape el texto si el input es muy pequeño */
-/* Podrías necesitar ajustar el padding-right del input si el botón se solapa */
-#password {
-     padding-right: 40px; /* Añade espacio a la derecha para el botón */
-}
-
-
-
 @media (max-width: 480px) {
-     .main-nav ul {
-         justify-content: space-around; /* Ocupa mejor el espacio */
-     }
-     .main-nav a, #cart-button {
-         padding: 0.3rem; /* Menos padding */
+     /* .main-nav ul { justify-content: space-around; } */ /* center suele ser suficiente */
+
+     /* Reducir padding en enlaces */
+     .main-nav a,
+     #cart-button {
+         padding: 0.4rem; /* Un poco menos padding */
          font-size: 0.9rem;
      }
-     #cart-button .cart-icon {
-         display: inline; /* Asegurar que se vea el icono */
-     }
-     #cart-button span:not(.cart-icon) {
-         /* Opcional: ocultar texto "Carrito" en pantallas muy pequeñas */
+     /* Icono carrito ya es inline-flex */
+     /* #cart-button .cart-icon { display: inline; } */
+
+     /* Ocultar texto "Carrito" en pantallas pequeñas */
+     #cart-button .cart-text { /* Necesitarías añadir <span class="cart-text"> al HTML */
          /* display: none; */
      }
      .product-grid {
-        grid-template-columns: 1fr; /* Una columna en móviles */
+        grid-template-columns: 1fr; /* Una columna */
     }
     .modal-content {
         width: 95%;
         padding: 1.5rem;
+    }
+    .site-footer {
+        padding: 1rem; /* Menos padding en footer */
     }
 }

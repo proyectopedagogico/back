@@ -37,5 +37,3 @@ if (themeToggleButton) {
     themeToggleButton.addEventListener('click', switchTheme);
 }
 
-// Llamar a la inicialización del tema (se puede llamar desde main.js también)
-// initializeTheme();

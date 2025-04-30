@@ -5,113 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - Tienda Moderna</title>
     <link rel="stylesheet" href="styles/styles.css">
-    <style>
-        /* Estilos específicos para la página de perfil */
-        .profile-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2em;
-        }
-        .profile-sidebar {
-            flex: 0 0 200px; /* Ancho fijo para sidebar */
-            text-align: center;
-        }
-        .profile-main {
-            flex: 1;
-            min-width: 300px;
-        }
-        .profile-pic-container {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 1em auto;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 3px solid var(--border-color);
-            background-color: var(--secondary-color); /* Fondo mientras carga o si no hay foto */
-        }
-        #profile-pic {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        #profile-pic-input {
-            display: none; /* Ocultar input original */
-        }
-        .change-pic-label {
-            display: inline-block;
-            padding: 0.4em 0.8em;
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color var(--transition-speed) ease;
-        }
-        .change-pic-label:hover {
-            background-color: var(--link-hover-color);
-        }
-        .profile-section {
-            background-color: var(--card-bg-color);
-            padding: 1.5em;
-            border-radius: var(--border-radius);
-            margin-bottom: 1.5em;
-            border: 1px solid var(--border-color);
-        }
-        .validation-message {
-            font-size: 0.9em;
-            margin-top: 0.5em;
-            font-weight: bold;
-        }
-        .validation-message.valid {
-            color: var(--success-color);
-        }
-        .validation-message.invalid {
-            color: var(--error-color);
-        }
-        .order-item {
-            padding: 0.8em 0;
-            border-bottom: 1px dashed var(--border-color);
-        }
-        .order-item:last-child {
-            border-bottom: none;
-        }
-        .order-details span {
-            display: inline-block;
-            margin-right: 1em;
-            color: var(--secondary-color);
-        }
-
-        @media (max-width: 600px) {
-            .profile-sidebar {
-                flex: 1 1 100%; /* Ocupa todo el ancho en móvil */
-                margin-bottom: 1em;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles/profile.css">
 </head>
 <body>
     <header class="site-header">
         <div class="container header-content">
-             <a href="index.html" class="logo">TiendaModerna</a>
+            <a href="index.html" class="logo">TiendaModerna</a>
             <nav class="main-nav">
                 <ul>
                     <li><a href="index.html">Inicio</a></li>
                     <li><a href="products.html">Productos</a></li>
-                    <li id="auth-nav-item">
-                         <a href="#" id="auth-button" class="btn btn-secondary">Login</a>
-                         </li>
-                     <li><a href="checkout.html" id="cart-nav-link">
-                        <span class="cart-icon">🛒</span> Carrito (<span id="cart-count">0</span>)
-                     </a></li>
+                    <li><a href="profile.html" id="auth-button" class="btn btn-secondary">Login</a></li>
                 </ul>
             </nav>
-            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Cambiar tema">
-                <span class="icon-sun">☀️</span>
-                <span class="icon-moon">🌙</span>
-            </button>
-        </div>
+    
+            <div class="header-actions">
+                <a href="#" id="cart-button">
+                     <span class="cart-icon">🛒</span> Carrito (<span id="cart-count">0</span>)
+                </a>
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Cambiar tema">
+                    <span class="icon-sun">☀️</span>
+                    <span class="icon-moon">🌙</span>
+                </button>
+            </div>
+            </div>
     </header>
 
     <main class="container main-content">
@@ -134,10 +51,10 @@
 
             <section class="profile-main">
                 <div class="profile-section">
-                    <h3>Validar DNI/NIE</h3>
+                    <h3>Validar DNI</h3>
                      <div class="form-group">
-                         <label for="dni-input">Introduce tu DNI o NIE:</label>
-                         <input type="text" id="dni-input" placeholder="Ej: 12345678Z ó X1234567L">
+                         <label for="dni-input">Introduce tu DNI:</label>
+                         <input type="text" id="dni-input" placeholder="Ej: 12345678Z">
                      </div>
                      <button id="validate-dni-btn" class="btn btn-secondary">Validar</button>
                      <p id="dni-validation-message" class="validation-message"></p>
@@ -186,6 +103,7 @@
     <script src="js/auth.js"></script>
     <script src="js/theme.js"></script>
     <script src="js/cart.js"></script>
-    <script src="js/profile.js"></script> <script src="js/main.js"></script>
+    <script src="js/profile.js"></script> 
+    <script src="js/main.js"></script>
 </body>
 </html>

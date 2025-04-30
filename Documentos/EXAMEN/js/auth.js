@@ -1,131 +1,139 @@
-// js/auth.js
 const authButton = document.getElementById('auth-button');
+const overlayForAuth = document.getElementById('overlay'); // Usado por login y carrito
+
+// --- Elementos del Modal de Login ---
 const loginModal = document.getElementById('login-modal');
 const closeLoginButton = document.getElementById('close-login-btn');
 const loginForm = document.getElementById('login-form');
 const loginErrorElement = document.getElementById('login-error');
-const overlayForAuth = document.getElementById('overlay'); // Usamos el mismo overlay
-
+const emailInput = document.getElementById('email'); // Seleccionar aquí si se usa en login()
 const passwordInput = document.getElementById('password');
 const togglePasswordButton = document.getElementById('togglePassword');
 
+// --- Lógica Toggle Contraseña ---
 if (togglePasswordButton && passwordInput) {
     togglePasswordButton.addEventListener('click', function() {
-        // Alternar el tipo de atributo del input de contraseña
         const currentType = passwordInput.getAttribute('type');
         const newType = currentType === 'password' ? 'text' : 'password';
         passwordInput.setAttribute('type', newType);
-
-        // Opcional: Cambiar el icono/texto del botón
-        // (Si usas emojis como en el ejemplo HTML)
+        // Cambia el icono/texto del botón
         this.textContent = newType === 'password' ? '👁️' : '🙈';
-        // (Si usaras clases para iconos diferentes, ej. FontAwesome 'fa-eye' / 'fa-eye-slash')
-        // this.querySelector('i').classList.toggle('fa-eye');
-        // this.querySelector('i').classList.toggle('fa-eye-slash');
     });
 } else {
-     // Solo mostrar este error si estamos en una página donde el login modal DEBERÍA estar presente
-     // Podríamos comprobar si 'login-modal' existe antes de mostrar el error.
-     if(document.getElementById('login-modal')) {
-        console.warn("No se encontró el input de contraseña o el botón para mostrar/ocultar.");
-     }
+    // Advertir solo si el modal de login existe en la página
+    if (loginModal) {
+        console.warn("Input de contraseña o botón toggle no encontrados en la página de login.");
+    }
 }
 
+// --- Funciones de Autenticación ---
 
-// Comprueba si el usuario está logueado (usando sessionStorage)
+// Comprueba si el usuario está logueado
 function isLoggedIn() {
     return sessionStorage.getItem('userLoggedIn') === 'true';
 }
 
-// Actualiza la UI basada en el estado de login
+// Actualiza la UI (botón nav y listeners) basada en el estado de login
 function updateAuthUI() {
+    // Re-seleccionar authButton aquí o usar la constante global.
+    // Si auth.js pudiera cargarse en páginas sin #auth-button, la selección aquí con check es más segura.
+    const navAuthButton = document.getElementById('auth-button');
+    if (!navAuthButton) {
+        // console.log("Botón de autenticación no encontrado en esta página."); // Log opcional
+        return; // Salir si el botón no existe
+    }
+
+    // Limpiar listeners anteriores para evitar duplicados
+    navAuthButton.removeEventListener('click', showLoginModal);
+    navAuthButton.removeEventListener('click', logout); // Quitar listener de logout por si acaso
+
     if (isLoggedIn()) {
         const userEmail = sessionStorage.getItem('userEmail') || 'Usuario';
-        authButton.textContent = `Hola, ${userEmail.split('@')[0]}`; // Mostrar parte del email
-        authButton.classList.remove('btn-secondary');
-        authButton.classList.add('btn-success'); // Cambiar estilo a 'logueado'
-        authButton.removeEventListener('click', showLoginModal); // Quitar listener de abrir modal
-        authButton.addEventListener('click', logout); // Añadir listener de logout
-        authButton.href = '#'; // Evitar que navegue si era un enlace
+        navAuthButton.textContent = `Hola, ${userEmail.split('@')[0]}`;
+        navAuthButton.classList.remove('btn-secondary');
+        navAuthButton.classList.add('btn-success');
+        navAuthButton.href = 'profile.html'; // Enlace a perfil
+        // No se añade ningún listener de click aquí, la navegación la hace el href
     } else {
-        authButton.textContent = 'Login';
-        authButton.classList.remove('btn-success');
-        authButton.classList.add('btn-secondary'); // Estilo por defecto
-        authButton.removeEventListener('click', logout); // Quitar listener de logout
-        authButton.addEventListener('click', showLoginModal); // Añadir listener de abrir modal
-        authButton.href = '#'; // Asegurarse que no navega
+        navAuthButton.textContent = 'Login';
+        navAuthButton.classList.remove('btn-success');
+        navAuthButton.classList.add('btn-secondary');
+        navAuthButton.href = '#'; // Para prevenir navegación y activar JS
+        navAuthButton.addEventListener('click', showLoginModal); // Listener para abrir modal
     }
 }
 
 // Muestra el modal de login
 function showLoginModal(event) {
-    if(event) event.preventDefault(); // Prevenir comportamiento del enlace si se hace clic
-    loginModal.classList.remove('hidden');
-    overlayForAuth.classList.remove('hidden');
-    loginErrorElement.classList.add('hidden'); // Ocultar errores previos
+    if (event) event.preventDefault(); // Prevenir comportamiento de enlace '#'
+    // Asegurarse que los elementos existen antes de usarlos
+    if (loginModal && overlayForAuth && loginErrorElement) {
+        loginModal.classList.remove('hidden');
+        overlayForAuth.classList.remove('hidden');
+        loginErrorElement.classList.add('hidden'); // Ocultar errores previos al mostrar
+    } else {
+        console.error("No se pueden mostrar el modal de login, faltan elementos (modal, overlay o error msg).");
+    }
 }
 
 // Oculta el modal de login
 function hideLoginModal() {
-    loginModal.classList.add('hidden');
-    overlayForAuth.classList.add('hidden');
+    if (loginModal && overlayForAuth) {
+        loginModal.classList.add('hidden');
+        overlayForAuth.classList.add('hidden');
+    }
 }
 
 // Simula el proceso de login
 function login(event) {
-    event.preventDefault(); // Evita el envío real del formulario
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
+    if (event) event.preventDefault(); // Evita el envío real del formulario
+
+    // Validar que los elementos del formulario existen
+    if (!emailInput || !passwordInput || !loginErrorElement) {
+         console.error("Elementos del formulario de login no encontrados.");
+         return;
+    }
     const email = emailInput.value;
     const password = passwordInput.value;
 
-    // --- SIMULACIÓN MUY BÁSICA ---
-    // En una aplicación real, esto sería una llamada a un backend (API)
+    // Simulación básica (en real, llamada a API)
     if (email && password && email.includes('@')) { // Validación mínima
-        // Supongamos que el login es exitoso
         sessionStorage.setItem('userLoggedIn', 'true');
         sessionStorage.setItem('userEmail', email);
-        updateAuthUI();
-        hideLoginModal();
-        emailInput.value = ''; // Limpiar campos
-        passwordInput.value = '';
-        loginErrorElement.classList.add('hidden');
+        updateAuthUI(); // Actualizar botón nav
+        hideLoginModal(); // Ocultar modal
+        // Limpiar campos (opcional pero buena práctica)
+        if(loginForm) loginForm.reset(); // Forma más simple de limpiar
+        // loginErrorElement.classList.add('hidden'); // hideLoginModal ya lo oculta al principio
     } else {
-        // Mostrar error
-        loginErrorElement.classList.remove('hidden');
+        loginErrorElement.classList.remove('hidden'); // Mostrar error
         console.error("Intento de login fallido (simulación)");
     }
 }
 
 // Realiza el logout
 function logout(event) {
-     if(event) event.preventDefault(); // Si se hace clic en el botón que ahora es de logout
+    // No necesitamos preventDefault aquí si se llama desde el botón en profile.js
+    // Pero si se llamara desde un enlace <a href="#">, sí sería útil.
+    // if(event) event.preventDefault();
     sessionStorage.removeItem('userLoggedIn');
     sessionStorage.removeItem('userEmail');
-    updateAuthUI();
+    updateAuthUI(); // Actualizar botón nav
     console.log("Usuario deslogueado");
+    // Considerar redirigir a inicio si se hace logout desde una página protegida
+    // if (window.location.pathname.includes('profile.html')) {
+    //     window.location.href = 'index.html';
+    // }
 }
 
-// --- Event Listeners ---
+// --- Event Listeners (Configuración inicial) ---
 
-// Cerrar modal de login
+// Listener para cerrar modal de login (si existe el botón)
 if (closeLoginButton) {
     closeLoginButton.addEventListener('click', hideLoginModal);
 }
 
-// Listener para el envío del formulario de login
+// Listener para el envío del formulario de login (si existe)
 if (loginForm) {
     loginForm.addEventListener('submit', login);
 }
-
-// Listener inicial para el botón de Auth (se actualiza en updateAuthUI)
-if (authButton) {
-    if (!isLoggedIn()) {
-        authButton.addEventListener('click', showLoginModal);
-    } else {
-        authButton.addEventListener('click', logout);
-    }
-}
-
-// Inicializar la UI de autenticación al cargar (podría ir en main.js)
-// updateAuthUI();

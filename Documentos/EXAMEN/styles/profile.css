@@ -1,0 +1,82 @@
+.profile-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2em;
+}
+.profile-sidebar {
+    flex: 0 0 200px; /* Ancho fijo para sidebar */
+    text-align: center;
+}
+.profile-main {
+    flex: 1;
+    min-width: 300px;
+}
+.profile-pic-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 1em auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid var(--border-color);
+    background-color: var(--secondary-color); /* Fondo mientras carga o si no hay foto */
+}
+#profile-pic {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+#profile-pic-input {
+    display: none; /* Ocultar input original */
+}
+.change-pic-label {
+    display: inline-block;
+    padding: 0.4em 0.8em;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color var(--transition-speed) ease;
+}
+.change-pic-label:hover {
+    background-color: var(--link-hover-color);
+}
+.profile-section {
+    background-color: var(--card-bg-color);
+    padding: 1.5em;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5em;
+    border: 1px solid var(--border-color);
+}
+.validation-message {
+    font-size: 0.9em;
+    margin-top: 0.5em;
+    font-weight: bold;
+}
+.validation-message.valid {
+    color: var(--success-color);
+}
+.validation-message.invalid {
+    color: var(--error-color);
+}
+.order-item {
+    padding: 0.8em 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+.order-item:last-child {
+    border-bottom: none;
+}
+.order-details span {
+    display: inline-block;
+    margin-right: 1em;
+    color: var(--secondary-color);
+}
+
+@media (max-width: 600px) {
+    .profile-sidebar {
+        flex: 1 1 100%; /* Ocupa todo el ancho en móvil */
+        margin-bottom: 1em;
+    }
+}

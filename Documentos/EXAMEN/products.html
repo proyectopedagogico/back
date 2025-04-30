@@ -14,17 +14,20 @@
                 <ul>
                     <li><a href="index.html">Inicio</a></li>
                     <li><a href="products.html">Productos</a></li>
-                    <li><a href="#" id="cart-button">
-                        <span class="cart-icon">🛒</span> Carrito (<span id="cart-count">0</span>)
-                    </a></li>
-                    <li><a href="#" id="auth-button" class="btn btn-secondary">Login</a></li>
+                    <li><a href="profile.html" id="auth-button" class="btn btn-secondary">Login</a></li>
                 </ul>
             </nav>
-            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Cambiar tema">
-                <span class="icon-sun">☀️</span>
-                <span class="icon-moon">🌙</span>
-            </button>
-        </div>
+    
+            <div class="header-actions">
+                <a href="#" id="cart-button">
+                     <span class="cart-icon">🛒</span> Carrito (<span id="cart-count">0</span>)
+                </a>
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Cambiar tema">
+                    <span class="icon-sun">☀️</span>
+                    <span class="icon-moon">🌙</span>
+                </button>
+            </div>
+            </div>
     </header>
 
     <main class="container main-content">
@@ -113,6 +116,7 @@
     </footer>
 
     <script src="js/theme.js"></script>
+    <script src="js/profile.js"></script>
     <script src="js/cart.js"></script>  <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
 </body>
