@@ -1,32 +1,48 @@
 from flask_sqlalchemy import SQLAlchemy
-import os
 
 db = SQLAlchemy()
 
+class Administrador(db.Model):
+    __tablename__ = 'administrador'
+    __table_args__ = {'schema': 'mydb'}
+    id_admin = db.Column(db.Integer, primary_key=True)
+    nombre_admin = db.Column(db.String(45))
+    password = db.Column(db.String(50), nullable=False)
+    historias = db.relationship('Historia', backref='administrador', lazy=True)
+
+class Imagen(db.Model):
+    __tablename__ = 'imagenes'
+    __table_args__ = {'schema': 'mydb'}
+    id_imagen = db.Column(db.Integer, primary_key=True)
+    url_imagen = db.Column(db.String(255), nullable=False)
+    descripcion = db.Column(db.Text)
+
 class Historia(db.Model):
     __tablename__ = 'historias'
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
-    contenido = db.Column(db.Text, nullable=False)
-    soft_skill = db.Column(db.String(100))
-    respuesta = db.Column(db.Text)
-    foto = db.Column(db.String(255))  # Ruta relativa al archivo de foto
+    __table_args__ = {'schema': 'mydb'}
+    id_historias = db.Column(db.Integer, primary_key=True)
+    contenido = db.Column(db.String(500), nullable=False)
+    administrador_id_admin = db.Column(db.Integer, db.ForeignKey('mydb.administrador.id_admin'), nullable=False)
+    etiquetas = db.relationship('Etiqueta', secondary='mydb.historias_etiquetas', backref='historias', lazy='dynamic')
 
-    def to_dict(self):
-        # Comprobar si la foto existe físicamente en la carpeta assets
-        foto_path = self.foto if self.foto else ""
-        existe_foto = False
-        if foto_path:
-            # Obtener la ruta absoluta a la carpeta raíz del proyecto
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            full_path = os.path.join(base_dir, foto_path)
-            existe_foto = os.path.isfile(full_path)
-        return {
-            "id": self.id,
-            "nombre": self.nombre,
-            "contenido": self.contenido,
-            "soft_skill": self.soft_skill,
-            "respuesta": self.respuesta,
-            "foto": self.foto,
-            "foto_existe": existe_foto  # Nuevo campo booleano
-        }
+class Etiqueta(db.Model):
+    __tablename__ = 'etiquetas'
+    __table_args__ = {'schema': 'mydb'}
+    id_etiqueta = db.Column(db.Integer, primary_key=True)
+    nombre_etiqueta = db.Column(db.String(100), nullable=False)
+
+class HistoriasEtiquetas(db.Model):
+    __tablename__ = 'historias_etiquetas'
+    __table_args__ = {'schema': 'mydb'}
+    id_historias = db.Column(db.Integer, db.ForeignKey('mydb.historias.id_historias'), primary_key=True)
+    id_etiqueta = db.Column(db.Integer, db.ForeignKey('mydb.etiquetas.id_etiqueta'), primary_key=True)
+
+class Persona(db.Model):
+    __tablename__ = 'personas'
+    __table_args__ = {'schema': 'mydb'}
+    id_persona = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50))
+    procedencia = db.Column(db.String(30), nullable=False)
+    profesion = db.Column(db.String(45))
+    fecha_nacimiento = db.Column(db.Date)
+    id_imagen = db.Column(db.Integer, db.ForeignKey('mydb.imagenes.id_imagen'))
