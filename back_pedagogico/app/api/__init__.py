@@ -1,6 +1,5 @@
-# app/api/__init__.py
-
 from flask import Blueprint
+
 
 # Se crea una instancia de Blueprint para la API.
 # El primer argumento, 'api', es el nombre del blueprint.
@@ -13,7 +12,7 @@ bp = Blueprint('api', __name__)
 # los módulos de rutas importarán 'bp' desde este archivo.
 
 from . import auth_routes # Para las rutas de autenticación (login, logout)
-# from . import story_routes # Para las rutas CRUD de historias (lo crearás más adelante)
+from . import story_routes # Para las rutas CRUD de historias (lo crearás más adelante)
 # from . import admin_routes # Para otras rutas específicas de administración (si se necesitan por separado)
 
 # También puedes añadir aquí manejadores de errores comunes para el blueprint de la API si es necesario.
