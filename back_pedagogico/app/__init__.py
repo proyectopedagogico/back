@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify # Added jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
@@ -8,11 +8,61 @@ from .core.config import config
 # NOTE: The API blueprint import is now moved into the create_app function below.
 
 # Initialize Flask extensions globally
-# These will be bound to a specific app instance in the create_app factory
 db = SQLAlchemy()
 migrate = Migrate()
-jwt = JWTManager()
+jwt = JWTManager() # Initialize JWTManager instance globally
 # CORS will be initialized directly in create_app
+
+# --- JWT Configuration Callbacks ---
+# These functions are decorated with callbacks from the 'jwt' instance.
+# They tell Flask-JWT-Extended how to behave in certain situations.
+
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    """
+    This function is called whenever a protected endpoint is accessed,
+    and will return the user object or None if the user does not exist.
+    """
+    identity = jwt_data["sub"] # 'sub' is the default claim for identity
+    # Assuming identity is the user ID (which we set as a string)
+    # Import AdminUser here to avoid circular imports at module level if AdminUser imports db
+    from .models.admin_user_model import AdminUser
+    return AdminUser.query.get(int(identity)) # Convert identity back to int for DB query
+
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_data):
+    """
+    Callback for when an expired JWT is encountered.
+    """
+    return jsonify({
+        'message': 'El token ha expirado.',
+        'error': 'token_expired'
+    }), 401
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error_string):
+    """
+    Callback for when an invalid JWT is encountered (e.g., malformed).
+    """
+    return jsonify({
+        'message': 'El token es inválido.',
+        'error': 'invalid_token',
+        'details': error_string
+    }), 422 # Unprocessable Entity is often used for invalid tokens
+
+@jwt.unauthorized_loader
+def missing_token_callback(error_string):
+    """
+    Callback for when a JWT is required but not found.
+    """
+    return jsonify({
+        'message': 'Se requiere un token de acceso.',
+        'error': 'authorization_required',
+        'details': error_string
+    }), 401
+
+# --- End of JWT Configuration Callbacks ---
+
 
 # Application Factory Function
 def create_app(config_name):
@@ -33,30 +83,16 @@ def create_app(config_name):
 
     # Initialize Flask extensions with the app instance
     db.init_app(app)
-    jwt.init_app(app)
+    jwt.init_app(app) # Associate the jwt instance with the app
     CORS(app) # Initialize CORS with default settings
 
-    # IMPORTANT: Import models AFTER db has been initialized with the app
-    # and BEFORE migrate is initialized with the app and db.
-    # This ensures that db.Model is correctly configured when models are defined.
     with app.app_context():
-        # Importing models within an app_context can sometimes help ensure
-        # they are correctly associated with the application, especially for extensions.
-        from .models import admin_user_model # Ensure this is the correct module name
-        # If you have other models, import them here as well:
-        # from .models import story_model
+        from .models import admin_user_model
 
-    # Initialize Flask-Migrate after models are imported and known to db.metadata
     migrate.init_app(app, db)
 
-    # Register Blueprints AFTER app and extensions are initialized.
-    # Import blueprints here, inside create_app, to avoid circular dependencies at module level.
-    from .api import bp as api_blueprint # MOVED HERE
+    from .api import bp as api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/api')
-
-    # Example for a simple main blueprint (if you had one for non-API routes)
-    # from .main import main as main_blueprint # Import and register other blueprints similarly
-    # app.register_blueprint(main_blueprint)
 
     @app.route('/hello')
     def hello():
