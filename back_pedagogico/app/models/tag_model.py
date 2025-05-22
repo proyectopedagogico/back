@@ -3,18 +3,18 @@ from datetime import datetime, timezone # For handling timestamps
 
 class Tag(db.Model):
     """
-    Tag model for categorizing stories, aligned with the new database schema.
+    Tag model for categorizing stories, aligned with the final database schema.
     """
-    __tablename__ = 'etiquetas' # Table name from the new schema
+    __tablename__ = 'etiquetas' # Table name from the SQL schema
 
     etiqueta_id = db.Column(db.Integer, primary_key=True) # Primary key, matches 'etiqueta_id'
     name = db.Column(db.String(50), unique=True, nullable=False) # Matches 'name VARCHAR(50)'
     
-    # Timestamps (good practice, can be kept or removed if not in schema)
+    # Timestamps (good practice, matches 'created_at' in SQL schema)
     created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     # The relationship to stories will be defined via the association table
-    # ('historias_has_etiquetas' in the new schema)
+    # ('historias_has_etiquetas' in the SQL schema)
     # and the 'backref' in the Story model's 'tags' relationship.
 
     def __init__(self, name): # Constructor uses the 'name' field
@@ -28,7 +28,7 @@ class Tag(db.Model):
         Serializes the Tag object to a dictionary.
         """
         return {
-            'etiqueta_id': self.etiqueta_id, # Changed 'id' to 'etiqueta_id'
-            'name': self.name,             # Changed 'nombre' to 'name'
+            'etiqueta_id': self.etiqueta_id,
+            'name': self.name,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }

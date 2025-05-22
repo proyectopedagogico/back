@@ -3,3 +3,8 @@ __pycache__/
 *.pyc
 *.log
 .env
+
+
+
+uploads/
+uploads_test/

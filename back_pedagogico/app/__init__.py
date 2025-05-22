@@ -61,7 +61,7 @@ def create_app(config_name):
 
     with app.app_context():
         # Import all your models here
-        from .models import admin_user_model, person_model, image_model, story_model, tag_model
+        from .models import admin_user_model, person_model, image_model, story_model, tag_model, story_translation_model
 
     migrate.init_app(app, db)
 

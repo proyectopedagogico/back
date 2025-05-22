@@ -1,48 +1,45 @@
-from app import db 
-from datetime import datetime, timezone 
+from app import db # Import the SQLAlchemy db instance from app/__init__.py
+from datetime import datetime, timezone # For handling timestamps
 
 class Person(db.Model):
     """
     Person model for storing information about the individuals
-    whose life stories are being told.
+    whose life stories are being told, aligned with the final database schema.
     """
-    __tablename__ = 'personas'  
+    __tablename__ = 'personas'  # Matches the table name in your SQL schema
 
-    id_persona = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), nullable=False)
-    procedencia = db.Column(db.String(30), nullable=True)
-    profesion = db.Column(db.String(45), nullable=True) 
-    fecha_nacimiento = db.Column(db.TIMESTAMP, nullable=True)
+    # Columns according to your final SQL schema
+    id_persona = db.Column(db.Integer, primary_key=True) # AUTO_INCREMENT is default for Integer PK
+    nombre = db.Column(db.String(50), nullable=True) # VARCHAR(50) NULL DEFAULT NULL
+    procedencia = db.Column(db.String(30), nullable=False) # VARCHAR(30) NOT NULL
+    profesion = db.Column(db.String(45), nullable=True) # VARCHAR(45) NULL DEFAULT NULL
+    fecha_nacimiento = db.Column(db.TIMESTAMP, nullable=True) # TIMESTAMP NULL DEFAULT NULL
+    
+    # Timestamps as per SQL schema
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     # Relationships
     # A person can have many stories (one-to-many relationship with Stories)
     # 'historias' will be an attribute to access the stories of this person.
     # 'backref' creates a 'persona' attribute in the Story model to access this Person.
-    historias = db.relationship('Story', backref='persona', lazy=True)
+    # This aligns with 'Personas_id_persona' FK in the 'historias' table.
+    historias = db.relationship('Story', foreign_keys='Story.Personas_id_persona', backref='persona', lazy='dynamic')
     
     # A person can have many images (one-to-many relationship with Images)
     # 'imagenes' will be an attribute to access the images of this person.
     # 'backref' creates a 'persona' attribute in the Image model to access this Person.
-    imagenes = db.relationship('Image', backref='persona', lazy=True)
+    # This aligns with 'Personas_id_persona' FK in the 'imagenes' table.
+    imagenes = db.relationship('Image', foreign_keys='Image.personas_id_persona', backref='persona_imagenes', lazy='dynamic') # Changed backref name to avoid conflict if 'persona' is used in Image for other purposes
 
-    # The columns Historias_id_historias and Imágenes_id_imagen in your Personas table
-    # are a bit unusual. Normally, foreign keys would be in the 'many' tables
-    # (Historias and Imágenes would point to Personas).
-    # If the intention is for a Person to be directly linked to ONE main story
-    # or ONE main image, the FK would be here. However, the column names
-    # suggest they might be reverse FKs or misplaced in the diagram.
-    # For now, we will model the relationships as described above (Person has many Stories/Images).
-    # If you need a one-to-one relationship or a specific FK here, we can adjust it.
-
-
-    def __init__(self, nombre, procedencia=None, profesion=None, fecha_nacimiento=None):
+    def __init__(self, procedencia, nombre=None, profesion=None, fecha_nacimiento=None): # Adjusted for nullable fields and mandatory procedencia
         self.nombre = nombre
-        self.procedencia = procedencia
+        self.procedencia = procedencia # procedencia is NOT NULL in schema
         self.profesion = profesion
         self.fecha_nacimiento = fecha_nacimiento
 
     def __repr__(self):
-        return f'<Person {self.id_persona}: {self.nombre}>'
+        return f'<Person {self.id_persona}: {self.nombre or "Sin nombre"}>'
 
     def to_dict(self):
         """
@@ -54,9 +51,7 @@ class Person(db.Model):
             'nombre': self.nombre,
             'procedencia': self.procedencia,
             'profesion': self.profesion,
-            'fecha_nacimiento': self.fecha_nacimiento.isoformat() if self.fecha_nacimiento else None
-            # You could add stories and images here if you want to nest them,
-            # but they are often handled with separate endpoints.
-            # 'historias': [story.to_dict_summary() for story in self.historias], # Example
-            # 'imagenes': [image.to_dict_summary() for image in self.imagenes]  # Example
+            'fecha_nacimiento': self.fecha_nacimiento.isoformat() if self.fecha_nacimiento else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }

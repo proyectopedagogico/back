@@ -1,119 +1,133 @@
-from flask import request, jsonify
-from flask_jwt_extended import jwt_required, current_user # current_user will be the AdminUser object
+from flask import request, jsonify, current_app
+from flask_jwt_extended import jwt_required, current_user 
 
-from . import bp # Import the blueprint 'bp' from app/api/__init__.py
+from . import bp 
 from app import db
+# Ensure AdminUser is imported if needed by current_user, though JWT handles the object loading
+# from app.models.admin_user_model import AdminUser 
 from app.models.story_model import Story
+from app.models.story_translation_model import StoryTranslation
 from app.models.person_model import Person
-# from app.models.tag_model import Tag # Import if you handle tags during story creation
+from app.models.tag_model import Tag
+
+# NOTE: Authentication routes (admin_login, admin_logout) have been removed from this file.
+# They should be in a separate app/api/auth_routes.py file and imported by app/api/__init__.py.
 
 @bp.route('/stories', methods=['POST'])
-@jwt_required() # Protect this route, only authenticated admins can create stories
+@jwt_required()
 def create_story():
     """
-    Creates a new story.
+    Creates a new story with its translations and tags.
     Expects a JSON payload with story details.
-    The admin creating the story is identified by the JWT.
     """
     data = request.get_json()
 
     if not data:
-        return jsonify({"error": "Request body must be JSON"}), 400
+        return jsonify({"error": "El cuerpo de la solicitud debe ser JSON."}), 400
 
-    # Required fields for a story
-    contenido = data.get('contenido')
-    id_persona = data.get('id_persona') # ID of the person this story is about
+    personas_id_persona = data.get('Personas_id_persona')
+    traducciones_data = data.get('traducciones')
 
-    if not contenido:
-        return jsonify({"error": "El campo 'contenido' es obligatorio."}), 400
-    if id_persona is None: # Check for None as id_persona could be 0 if that's a valid ID
-        return jsonify({"error": "El campo 'id_persona' es obligatorio."}), 400
+    if personas_id_persona is None:
+        return jsonify({"error": "El campo 'Personas_id_persona' es obligatorio."}), 400
+    if not traducciones_data or not isinstance(traducciones_data, list) or not traducciones_data:
+        return jsonify({"error": "El campo 'traducciones' es obligatorio y debe ser una lista no vacía de traducciones."}), 400
 
-    # Verify if the person exists
-    person = Person.query.get(id_persona)
+    person = db.session.get(Person, personas_id_persona)
     if not person:
-        return jsonify({"error": f"La persona con id {id_persona} no existe."}), 404
+        return jsonify({"error": f"La persona con id {personas_id_persona} no existe."}), 404
 
-    # Get the ID of the authenticated admin user from the JWT
-    # current_user is populated by our @jwt.user_lookup_loader
-    administrador_id_admin = current_user.id
+    # current_user is populated by @jwt.user_lookup_loader in app/__init__.py
+    # Ensure your AdminUser model has 'id_admin' as its primary key attribute
+    administrador_id_admin = current_user.id_admin 
 
-    # Optional fields
-    # title = data.get('title') # If you decide to add a title to stories directly
-    # image_url = data.get('image_url') # If a story has a main image
-    # etiqueta_ids = data.get('etiqueta_ids') # Example: a list of tag IDs to associate
+    etiqueta_id_principal = data.get('etiqueta_id_principal')
+    if etiqueta_id_principal is not None:
+        principal_tag = db.session.get(Tag, etiqueta_id_principal)
+        if not principal_tag:
+            return jsonify({"error": f"La etiqueta principal con id {etiqueta_id_principal} no existe."}), 404
+    
+    many_to_many_tag_ids = data.get('tag_ids', []) 
 
     try:
         new_story = Story(
-            contenido=contenido,
-            id_persona=id_persona,
-            administrador_id_admin=administrador_id_admin
-            # Add other fields like title, image_url if you include them
+            Personas_id_persona=personas_id_persona,
+            Administrador_id_admin=administrador_id_admin,
+            etiqueta_id_principal=etiqueta_id_principal
         )
-
-        # Handling tags (if etiqueta_ids are provided and you want to link them)
-        # if etiqueta_ids:
-        #     for tag_id in etiqueta_ids:
-        #         tag = Tag.query.get(tag_id)
-        #         if tag:
-        #             new_story.tags.append(tag)
-        #         else:
-        #             # Handle case where a tag_id is invalid, maybe collect errors
-        #             pass 
-
         db.session.add(new_story)
+        db.session.flush() 
+
+        for trans_data in traducciones_data:
+            codigo_idioma = trans_data.get('codigo_idioma')
+            contenido_traducido = trans_data.get('contenido_traducido')
+            if not codigo_idioma or not contenido_traducido:
+                db.session.rollback() 
+                return jsonify({"error": "Cada traducción debe tener 'codigo_idioma' y 'contenido_traducido'."}), 400
+            
+            translation = StoryTranslation(
+                historias_id_historias=new_story.id_historias,
+                codigo_idioma=codigo_idioma,
+                contenido_traducido=contenido_traducido
+            )
+            db.session.add(translation)
+
+        if many_to_many_tag_ids:
+            new_tags_list = []
+            for tag_id in many_to_many_tag_ids:
+                tag = db.session.get(Tag, tag_id)
+                if tag:
+                    new_tags_list.append(tag)
+                else:
+                    current_app.logger.warn(f"Tag con id {tag_id} no encontrado al crear historia.")
+            new_story.tags = new_tags_list
+        
         db.session.commit()
         
-        # Return the created story, including its new ID and any relationships
-        return jsonify(new_story.to_dict()), 201 # 201 Created
+        return jsonify(new_story.to_dict()), 201
 
     except Exception as e:
         db.session.rollback()
-        # Log the error for debugging
-        # current_app.logger.error(f"Error creating story: {e}")
+        current_app.logger.error(f"Error al crear la historia: {e}", exc_info=True)
         return jsonify({"error": "Error interno del servidor al crear la historia.", "details": str(e)}), 500
-    
-    
+
 @bp.route('/stories', methods=['GET'])
-@jwt_required() # Protect this route
+@jwt_required()
 def get_stories():
     """
     Retrieves a list of all stories.
     """
     try:
+        lang_code = request.args.get('lang', 'es') 
         stories = Story.query.all()
-        # Convert each story object to its dictionary representation
-        stories_list = [story.to_dict() for story in stories]
+        stories_list = [story.to_dict(language_code=lang_code) for story in stories]
         return jsonify(stories_list), 200
     except Exception as e:
-        # current_app.logger.error(f"Error retrieving stories: {e}") # Uncomment for logging
+        current_app.logger.error(f"Error al obtener historias: {e}", exc_info=True)
         return jsonify({"error": "Error interno del servidor al obtener las historias.", "details": str(e)}), 500
 
-
 @bp.route('/stories/<int:id_historias>', methods=['GET'])
-@jwt_required() # Protect this route
+@jwt_required()
 def get_story(id_historias):
     """
     Retrieves a specific story by its ID.
     """
     try:
-        # Story.query.get_or_404(id_historias) is a convenient way to get a record or raise a 404 error
-        story = db.session.get(Story, id_historias) # More direct way with SQLAlchemy 2.0 style
+        lang_code = request.args.get('lang', 'es')
+        story = db.session.get(Story, id_historias)
         if story is None:
             return jsonify({"error": "Historia no encontrada."}), 404
             
-        return jsonify(story.to_dict()), 200
+        return jsonify(story.to_dict(language_code=lang_code)), 200
     except Exception as e:
-        # current_app.logger.error(f"Error retrieving story {id_historias}: {e}") # Uncomment for logging
+        current_app.logger.error(f"Error al obtener la historia {id_historias}: {e}", exc_info=True)
         return jsonify({"error": "Error interno del servidor al obtener la historia.", "details": str(e)}), 500
 
-
 @bp.route('/stories/<int:id_historias>', methods=['PUT'])
-@jwt_required() # Protect this route
+@jwt_required()
 def update_story(id_historias):
     """
-    Updates an existing story.
-    Expects a JSON payload with fields to update.
+    Updates an existing story, its translations, and tags.
     """
     try:
         story = db.session.get(Story, id_historias)
@@ -122,46 +136,66 @@ def update_story(id_historias):
 
         data = request.get_json()
         if not data:
-            return jsonify({"error": "Request body must be JSON"}), 400
+            return jsonify({"error": "El cuerpo de la solicitud debe ser JSON."}), 400
 
-        # Update fields if they are provided in the request data
-
-        if 'contenido' in data:
-            story.contenido = data['contenido']
-        
-        # To update 'id_persona', ensure the new person exists
-        if 'id_persona' in data:
-            new_id_persona = data.get('id_persona')
-            if new_id_persona is None:
-                return jsonify({"error": "El campo 'id_persona' no puede ser nulo si se intenta actualizar."}), 400
+        if 'Personas_id_persona' in data:
+            new_id_persona = data.get('Personas_id_persona')
             person = db.session.get(Person, new_id_persona)
             if not person:
                 return jsonify({"error": f"La persona con id {new_id_persona} no existe."}), 404
-            story.id_persona = new_id_persona
-        # Add updates for other fields from your Story model as needed:
-        # story.title = data.get('title', story.title) # If you add a title
-        # story.origin = data.get('origin', story.origin)
-        # story.age_group = data.get('age_group', story.age_group)
-        # story.profession = data.get('profession', story.profession)
-        # story.image_url = data.get('image_url', story.image_url)
-        # story.notable_elements = data.get('notable_elements', story.notable_elements)
+            story.Personas_id_persona = new_id_persona
+        
+        if 'etiqueta_id_principal' in data: 
+            etiqueta_id_principal = data.get('etiqueta_id_principal')
+            if etiqueta_id_principal is not None:
+                principal_tag = db.session.get(Tag, etiqueta_id_principal)
+                if not principal_tag:
+                    return jsonify({"error": f"La etiqueta principal con id {etiqueta_id_principal} no existe."}), 404
+            story.etiqueta_id_principal = etiqueta_id_principal
 
-        # Note: Updating 'administrador_id_admin' might not be typical unless transferring ownership.
-        # Handling tags (if implemented) would require more complex logic here:
-        # - Clear existing tags for the story.
-        # - Add new tags based on IDs provided in 'data'.
+        if 'traducciones' in data:
+            traducciones_data = data.get('traducciones')
+            if not isinstance(traducciones_data, list):
+                return jsonify({"error": "'traducciones' debe ser una lista."}), 400
+            
+            # Efficiently delete old translations
+            StoryTranslation.query.filter_by(historias_id_historias=story.id_historias).delete()
+            
+            for trans_data in traducciones_data:
+                codigo_idioma = trans_data.get('codigo_idioma')
+                contenido_traducido = trans_data.get('contenido_traducido')
+                if not codigo_idioma or not contenido_traducido:
+                    db.session.rollback()
+                    return jsonify({"error": "Cada traducción debe tener 'codigo_idioma' y 'contenido_traducido'."}), 400
+                new_trans = StoryTranslation(
+                    historias_id_historias=story.id_historias,
+                    codigo_idioma=codigo_idioma,
+                    contenido_traducido=contenido_traducido
+                )
+                db.session.add(new_trans)
 
+        if 'tag_ids' in data:
+            tag_ids = data.get('tag_ids', [])
+            updated_tags = []
+            if tag_ids: 
+                for tag_id in tag_ids:
+                    tag = db.session.get(Tag, tag_id)
+                    if tag:
+                        updated_tags.append(tag)
+                    else:
+                        current_app.logger.warn(f"Tag con id {tag_id} no encontrado al actualizar historia.")
+            story.tags = updated_tags 
+        
         db.session.commit()
         return jsonify(story.to_dict()), 200
 
     except Exception as e:
         db.session.rollback()
-        # current_app.logger.error(f"Error updating story {id_historias}: {e}") # Uncomment for logging
+        current_app.logger.error(f"Error al actualizar la historia {id_historias}: {e}", exc_info=True)
         return jsonify({"error": "Error interno del servidor al actualizar la historia.", "details": str(e)}), 500
 
-
 @bp.route('/stories/<int:id_historias>', methods=['DELETE'])
-@jwt_required() # Protect this route
+@jwt_required()
 def delete_story(id_historias):
     """
     Deletes a specific story by its ID.
@@ -174,10 +208,8 @@ def delete_story(id_historias):
         db.session.delete(story)
         db.session.commit()
         
-        return jsonify({"message": "Historia eliminada correctamente."}), 200 # Or 204 No Content
+        return jsonify({"message": "Historia eliminada correctamente."}), 200
     except Exception as e:
         db.session.rollback()
-        # current_app.logger.error(f"Error deleting story {id_historias}: {e}") # Uncomment for logging
+        current_app.logger.error(f"Error al eliminar la historia {id_historias}: {e}", exc_info=True)
         return jsonify({"error": "Error interno del servidor al eliminar la historia.", "details": str(e)}), 500
-
-
