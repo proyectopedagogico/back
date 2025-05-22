@@ -14,6 +14,7 @@ bp = Blueprint('api', __name__)
 from . import auth_routes # Para las rutas de autenticación (login, logout)
 from . import story_routes # Para las rutas CRUD de historias (lo crearás más adelante)
 from . import image_routes
+
 # from . import admin_routes # Para otras rutas específicas de administración (si se necesitan por separado)
 
 # También puedes añadir aquí manejadores de errores comunes para el blueprint de la API si es necesario.
