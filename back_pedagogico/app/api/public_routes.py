@@ -94,3 +94,118 @@ def get_public_story_detail(id_historias):
     except Exception as e:
         current_app.logger.error(f"Error retrieving public story {id_historias}: {e}", exc_info=True)
         return jsonify({"error": "Internal server error while fetching the story.", "details": str(e)}), 500
+    
+
+
+#es solo para que puedo testear si funciona antes de empezar los endpoint
+@bp.route('/test', methods=['GET'])
+def test():
+    return {"status": "ok"}
+
+
+#Filtrar historias por etiqueta  http://127.0.0.1:5000/api/stories/by_tag/4
+@bp.route('/stories/by_tag/<int:tag_id>', methods=['GET'])
+def get_stories_by_tag(tag_id):
+    """
+    Devuelve todas las historias asociadas a una etiqueta específica.
+    """
+    try:
+        lang_code = request.args.get('lang', 'es', type=str)
+        stories = Story.query.join(Story.tags).filter(Tag.etiqueta_id == tag_id).all()
+        return jsonify([story.to_dict(language_code=lang_code) for story in stories]), 200
+    except Exception as e:
+        current_app.logger.error(f"Error al filtrar historias por etiqueta: {e}", exc_info=True)
+        return jsonify({"error": "Error interno del servidor al filtrar historias por etiqueta.", "details": str(e)}), 500
+
+
+#Filtrar historias por persona  http://127.0.0.1:5000/api/stories/by_person/2
+
+@bp.route('/stories/by_person/<int:id_persona>', methods=['GET'])
+def get_stories_by_person(id_persona):
+    """
+    Devuelve todas las historias asociadas a una persona específica.
+    """
+    try:
+        lang_code = request.args.get('lang', 'es', type=str)
+        stories = Story.query.filter(Story.Personas_id_persona == id_persona).all()
+        return jsonify([story.to_dict(language_code=lang_code) for story in stories]), 200
+    except Exception as e:
+        current_app.logger.error(f"Error al filtrar historias por persona: {e}", exc_info=True)
+        return jsonify({"error": "Error interno del servidor al filtrar historias por persona.", "details": str(e)}), 500
+
+
+   
+#Filtrar historias por etiqueta y persona http://127.0.0.1:5000/api/stories/by_tag_and_person?tag_id=3&id_persona=2
+
+@bp.route('/stories/by_tag_and_person', methods=['GET'])
+def get_stories_by_tag_and_person():
+    """
+    Devuelve todas las historias asociadas a una etiqueta y persona específicas.
+    Parámetros de query:
+      - tag_id
+      - id_persona
+    """
+    try:
+        tag_id = request.args.get('tag_id', type=int)
+        id_persona = request.args.get('id_persona', type=int)
+        lang_code = request.args.get('lang', 'es', type=str)
+
+        if tag_id is None or id_persona is None:
+            return jsonify({"error": "Debe proporcionar ambos parámetros: tag_id e id_persona."}), 400
+
+        stories = Story.query \
+            .filter(Story.Personas_id_persona == id_persona) \
+            .join(Story.tags).filter(Tag.etiqueta_id == tag_id) \
+            .all()
+        return jsonify([story.to_dict(language_code=lang_code) for story in stories]), 200
+    except Exception as e:
+        current_app.logger.error(f"Error al filtrar historias por etiqueta y persona: {e}", exc_info=True)
+        return jsonify({"error": "Error interno del servidor al filtrar historias por etiqueta y persona.", "details": str(e)}), 500
+
+
+#Filtrar personas por profesion http://127.0.0.1:5000/api/persons/by_profession?profesion=maestro
+
+@bp.route('/persons/by_profession', methods=['GET'])
+def get_persons_by_profession():
+    """
+    Devuelve todas las personas con la profesión indicada.
+    Parámetro de query: profesion (ejemplo: /api/persons/by_profession?profesion=maestro)
+    """
+    try:
+        profesion = request.args.get('profesion', type=str)
+        if not profesion:
+            return jsonify({"error": "Debes indicar el parámetro 'profesion'."}), 400
+
+        # Búsqueda insensible a mayúsculas/minúsculas
+        persons = Person.query.filter(Person.profesion.ilike(f"%{profesion}%")).all()
+        return jsonify([person.to_dict() for person in persons]), 200
+
+    except Exception as e:
+        current_app.logger.error(f"Error al filtrar personas por profesión: {e}", exc_info=True)
+        return jsonify({"error": "Error interno del servidor al filtrar personas por profesión.", "details": str(e)}), 500
+    
+
+    
+#Para agregar etiquetas 
+@bp.route('/tags', methods=['POST'])
+def create_tag():
+    """
+    Crea una nueva etiqueta.
+    Espera un JSON como: { "name": "Nombre de la etiqueta" }
+    """
+    data = request.get_json()
+    name = data.get('name')
+
+    if not name:
+        return jsonify({"error": "El campo 'name' es obligatorio."}), 400
+
+    tag = Tag(name=name)
+    db.session.add(tag)
+    db.session.commit()
+    # Devuelve el id y el nombre de la etiqueta creada
+    return jsonify({
+        "etiqueta_id": tag.etiqueta_id,
+        "name": tag.name
+    }), 201
+
+
