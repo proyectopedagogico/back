@@ -24,9 +24,10 @@ This is the backend administration panel for the "Proyecto Pedagógico". It is a
 - **Authentication**: Flask-JWT-Extended
 - **CORS**: Flask-Cors
 - **Password Hashing**: bcrypt
+---
 
 ## Project Structure
-
+  ```
 proyectopedagogico/back/back-admin/
 ├── back_pedagogico/
 │   ├── app/
@@ -53,7 +54,8 @@ proyectopedagogico/back/back-admin/
 │   └── run.py            # Application entry point
 ├── requirements.txt      # Python dependencies
 └── README.md             # This file
-
+  
+  ```
 
 ---
 
